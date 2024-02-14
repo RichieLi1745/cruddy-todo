@@ -21,6 +21,7 @@ const readCounter = (callback) => {
       callback(null, 0);
     } else {
       callback(null, Number(fileData));
+      //console.log('number: ', Number(fileData));
     }
   });
 };
@@ -34,13 +35,37 @@ const writeCounter = (count, callback) => {
       callback(null, counterString);
     }
   });
+
 };
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback) => {
+  //save counter to hard drive
+  //first read counter to make sure there is an existing, and err if not using error first callback
+  readCounter((err, count)=> {
+    if (err) {
+      //console.log('Reading error: counter file: ', err);
+      return callback(err);
+    }
+    //increment counter
+    count++;
+    //write counter to counterFile returning counterString from the callback while using error first callback
+    writeCounter(count, (err, counterString)=> {
+      if (err) {
+        //console.log('Writing error: counter file: ', err);
+        return callback(err);
+      }
+      //console.log('counter: ', counterString);
+      //return error set to null with successful data as second argument
+      callback(null, counterString);
+    });
+
+  });
+  //write it to the file in hard drive
+
+  /*counter = counter + 1;
+  return zeroPaddedNumber(counter);*/
 };
 
 
